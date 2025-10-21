@@ -1,0 +1,1040 @@
+// ===== Injetar Meta Viewport para Responsividade em Mobile =====
+const metaViewport = document.createElement('meta');
+metaViewport.name = 'viewport';
+metaViewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+document.head.appendChild(metaViewport);
+
+// ===== Injetar Link de Fontes =====
+const fontLink = document.createElement('link');
+fontLink.href = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap';
+fontLink.rel = 'preload';
+fontLink.as = 'style';
+fontLink.onload = function() { this.rel = 'stylesheet'; };
+document.head.appendChild(fontLink);
+
+// ===== Injetar CSS (estilo baseado na paleta, light theme inspirado nas screenshots, responsivo) =====
+const style = document.createElement('style');
+style.textContent = `
+:root {
+  --bg-color: #f8f8f8;
+  --text-color: #000;
+  --accent-color: #AB865B;
+  --accent-light: #D3AD83;
+  --secondary-bg: #fff;
+  --border-color: rgba(0,0,0,0.1);
+  --shadow-color: rgba(0,0,0,0.1);
+  --input-bg: #fff;
+  --beige-bg: #f5f2ed;
+}
+
+body.dark {
+  --bg-color: #141414;
+  --text-color: #fff;
+  --secondary-bg: #1a1a1a;
+  --border-color: rgba(255,255,255,0.1);
+  --shadow-color: rgba(0,0,0,0.5);
+  --input-bg: #2b2b2b;
+  --beige-bg: #1a1a1a;
+}
+
+body.dark .progress {
+  background: #333;
+}
+
+body.dark #loadingText {
+  color: #aaa;
+}
+
+body.dark .label-upload {
+  color: #aaa;
+}
+
+body.dark #preview {
+  background: var(--input-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23aaa' viewBox='0 0 24 24'%3E%3Cpath d='M4 4h16v12H4z'/%3E%3Cpath d='M20 2H4a2 2 0 00-2 2v16a2 2 0 002 2h16a2 2 0 002-2V4a2 2 0 00-2-2zm-1 18H5V5h14v15zM7 15l4.5-6 3.5 4.5 2.5-3L19 15' fill='%23aaa'/%3E%3C/svg%3E") center/40% no-repeat;
+  border: 1px solid var(--border-color);
+}
+
+body.dark input[type=text], body.dark input[type=email], body.dark input[type=tel] {
+  background: var(--input-bg);
+  color: var(--text-color);
+}
+
+body.dark header {
+  background: var(--accent-color);
+}
+
+body.dark .detail-value {
+  color: #aaa;
+}
+
+body.dark .request-note {
+  background: #2a2a2a;
+  color: var(--text-color);
+}
+
+body {
+  margin: 0;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg-color);
+  min-height: 100vh;
+  overflow: auto;
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px;
+}
+
+#overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--beige-bg);
+  z-index: 9999;
+  transition: opacity .6s ease;
+  padding: 20px;
+}
+
+#overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#logo {
+  width: 150px;
+  margin-bottom: 25px;
+}
+
+.progress {
+  width: 200px;
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 4px;
+  width: 0;
+  background: var(--accent-color);
+  animation: load 4.5s forwards;
+  will-change: width;
+}
+
+@keyframes load {
+  to { width: 100%; }
+}
+
+#loadingText {
+  color: #666;
+  font-size: .9rem;
+  margin-top: 10px;
+}
+
+.fade {
+  opacity: 0;
+  transition: opacity .6s ease;
+}
+
+.fade.show {
+  opacity: 1;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-top: 25px;
+  color: var(--text-color);
+  width: 90%;
+  max-width: 350px;
+}
+
+input[type=file] {
+  display: none;
+}
+
+.label-upload {
+  font-size: .85rem;
+  color: #666;
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+#preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--input-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23666' viewBox='0 0 24 24'%3E%3Cpath d='M4 4h16v12H4z'/%3E%3Cpath d='M20 2H4a2 2 0 00-2 2v16a2 2 0 002 2h16a2 2 0 002-2V4a2 2 0 00-2-2zm-1 18H5V5h14v15zM7 15l4.5-6 3.5 4.5 2.5-3L19 15' fill='%23666'/%3E%3C/svg%3E") center/40% no-repeat;
+  border: 1px solid var(--border-color);
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform .3s ease;
+}
+
+#preview:hover {
+  transform: scale(1.05);
+}
+
+#preview.loading {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%23AB865B' stroke-width='2' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' stroke-dasharray='63' stroke-dashoffset='63'/%3E%3Canimate attributeName='stroke-dashoffset' values='63;0' dur='1s' repeatCount='indefinite'/%3E%3C/svg%3E");
+  background-size: 50%;
+}
+
+input[type=text], input[type=email], input[type=tel] {
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 30px;
+  width: 100%;
+  background: var(--input-bg);
+  color: var(--text-color);
+  font-size: 15px;
+  transition: border .2s;
+}
+
+input:focus {
+  outline: none;
+  border: 1px solid var(--accent-color);
+}
+
+button {
+  background: var(--accent-color);
+  border: none;
+  border-radius: 30px;
+  padding: 12px 32px;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background .2s;
+}
+
+button:hover {
+  background: var(--accent-light);
+}
+
+header {
+  background: var(--accent-light);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 800px;
+  border-radius: 30px 30px 0 0;
+  box-shadow: 0 2px 10px var(--shadow-color);
+  margin-bottom: 20px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-circle {
+  width: 30px;
+  height: 30px;
+}
+
+.header-text {
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.hello-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.edit-profile {
+  cursor: pointer;
+  color: var(--accent-color);
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.history-icon {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  fill: var(--accent-color);
+}
+
+.hamburger {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  fill: var(--text-color);
+  margin-right: 10px;
+}
+
+.hello-photo {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.card {
+  background: var(--secondary-bg);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px var(--shadow-color);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.card-title {
+  font-weight: 600;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.check-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.details-link {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border-color);
+  padding: 8px 0;
+}
+
+.detail-label {
+  font-weight: 500;
+}
+
+.detail-value {
+  color: #666;
+}
+
+.button-container {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.action-button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: background .3s;
+}
+
+.request-note {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.cancel-renewal {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+.cancel-renewal:hover {
+  background: var(--accent-light);
+}
+
+footer {
+  margin-top: auto;
+  padding: 20px;
+  font-size: 12px;
+  color: #666;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.powered-logo {
+  width: 100px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 15px;
+}
+
+.footer-link {
+  color: #666;
+  text-decoration: none;
+}
+
+.popup-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 9999;
+  display: none;
+}
+
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  opacity: 0;
+  background: var(--secondary-bg);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px var(--shadow-color);
+  z-index: 10000;
+  display: none;
+  max-width: 300px;
+  max-height: 80vh;
+  overflow: auto;
+  text-align: center;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.popup.active {
+  display: block;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.popup h3 {
+  margin-bottom: 10px;
+}
+
+.popup p {
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.popup button {
+  width: 100%;
+}
+
+.popup ul {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+}
+
+.popup li {
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+#sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 250px;
+  background: var(--secondary-bg);
+  backdrop-filter: blur(10px);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: 9998;
+  padding: 20px;
+}
+
+#sidebar.active {
+  transform: translateX(0);
+}
+
+#sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+#sidebar li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#sidebar li:hover {
+  background: rgba(171,134,91,0.1);
+  box-shadow: 0 0 10px rgba(171,134,91,0.2);
+}
+
+#sidebar svg {
+  width: 20px;
+  height: 20px;
+  fill: var(--accent-color);
+}
+
+#sidebar .toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#darkToggle {
+  cursor: pointer;
+}
+
+#redirectOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+  flex-direction: column;
+  gap: 10px;
+  color: #fff;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255,255,255,0.3);
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 600px) {
+  #overlay {
+    padding: 30px;
+  }
+
+  form {
+    gap: 16px;
+  }
+
+  header {
+    padding: 8px 16px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 390px) {
+  header {
+    flex-direction: column;
+    gap: 10px;
+    border-radius: 20px;
+  }
+
+  .button-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+`;
+document.head.appendChild(style);
+
+// ===== Injetar HTML Estrutura =====
+document.body.innerHTML = `
+<div id="redirectOverlay">
+  <div class="spinner"></div>
+  <p>Redirecionando...</p>
+</div>
+
+<div id="overlay">
+  <img id="logo" src="https://framerusercontent.com/images/Oe8d7JZskbAvjlTrwbIEeozgs.png" alt="Logo do Frame" loading="lazy"> 
+  <div class="progress"><div class="progress-bar"></div></div>
+  <p id="loadingText">Preparando...</p>
+  <div id="formArea" class="fade">
+    <form id="profileForm">
+      <label for="photo" class="label-upload">
+        <img id="preview" src="" alt="Adicionar ou alterar foto de perfil" role="button" aria-label="Adicionar ou alterar foto de perfil">
+        Adicionar foto (opcional)
+      </label>
+      <input id="photo" type="file" accept="image/*">
+      <input id="name" type="text" placeholder="Nome completo*" required aria-required="true">
+      <input id="cpf" type="tel" placeholder="CPF (000.000.000-00)*" required aria-required="true">
+      <input id="email" type="email" placeholder="E-mail*" required aria-required="true">
+      <input id="nickname" type="text" placeholder="Apelido (opcional)">
+      <button type="submit" data-test="submit-button">Concluir</button>
+    </form>
+  </div>
+</div>
+
+<header style="display: none;">
+  <svg class="hamburger" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+  <div class="logo-container">
+    <img class="logo-circle" src="https://framerusercontent.com/images/es31MeIE8UuR3D8HQlLfluPLqE.png" alt="Logo circular do Frame" loading="lazy">
+    <span class="header-text">Portal do Cliente / Frame</span>
+  </div>
+  <div class="hello-container" id="hello"></div>
+</header>
+
+<div id="sidebar">
+  <ul>
+    <li id="menuProfile"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg> Perfil</li>
+    <li id="menuFaturas"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg> Faturas</li>
+    <li id="menuSuporte"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" /></svg> Suporte</li>
+    <li><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg> Configurações
+      <div class="toggle-wrapper">
+        <label for="darkToggle">Dark Mode</label>
+        <input type="checkbox" id="darkToggle">
+      </div>
+    </li>
+    <li id="menuLogout"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg> Sair</li>
+  </ul>
+</div>
+
+<div class="card" style="display: none;">
+  <div class="card-title">
+    Fatura paga
+    <img class="check-icon" src="https://framerusercontent.com/images/nWejBYDasQmTXWJ27vJEuLDRheE.png" alt="Ícone de verificação para fatura paga" loading="lazy">
+  </div>
+  <a class="details-link" href="#" aria-label="Ver detalhes da fatura">Ver detalhes da fatura ></a>
+  <div class="detail-item">
+    <span class="detail-label">Número da fatura</span>
+    <span class="detail-value">F-97A706DA-12993</span>
+  </div>
+  <div class="detail-item">
+    <span class="detail-label">Data de pagamento</span>
+    <span class="detail-value">16 de agosto de 2025</span>
+  </div>
+  <div class="detail-item">
+    <span class="detail-label">Forma de pagamento</span>
+    <span class="detail-value">Cartão</span>
+  </div>
+  <div class="button-container">
+    <div class="action-button request-note" id="requestNote" role="button" tabindex="0" aria-label="Solicitar nota fiscal">Solicitar nota fiscal</div>
+    <div class="action-button cancel-renewal" id="cancelRenewal" role="button" tabindex="0" aria-label="Cancelar renovação automática">Cancelar renovação automática</div>
+  </div>
+</div>
+
+<footer style="display: none;">
+  <img class="powered-logo" src="https://framerusercontent.com/images/Oe8d7JZskbAvjlTrwbIEeozgs.png" alt="Powered by Frame" loading="lazy">
+  <div class="footer-links">
+    <a class="footer-link" href="#">Privacidade</a>
+    <a class="footer-link" href="#">Política de Reembolso</a>
+    <a class="footer-link" href="https://frameag.com/contato">Suporte</a>
+  </div>
+</footer>
+
+<div class="popup-backdrop" id="noteBackdrop"></div>
+<div id="notePopup" class="popup" role="dialog" aria-modal="true">
+  <h3>Solicitar Nota Fiscal</h3>
+  <p>Aqui você pode solicitar a nota fiscal para sua fatura. Entre em contato com o suporte para mais detalhes.</p>
+  <button id="redirectNote">Solicitar</button>
+</div>
+
+<div class="popup-backdrop" id="cancelBackdrop"></div>
+<div id="cancelPopup" class="popup" role="dialog" aria-modal="true">
+  <h3>Cancelar Renovação</h3>
+  <p>Confirma o cancelamento da renovação automática? Isso afetará futuras cobranças.</p>
+  <button id="redirectCancel">Confirmar</button>
+</div>
+
+<div class="popup-backdrop" id="detailsBackdrop"></div>
+<div id="detailsPopup" class="popup" role="dialog" aria-modal="true">
+  <h3>Detalhes da Fatura</h3>
+  <p>Busque no email de confirmação da assinatura que por lá você recebeu sua Fatura completa em PDF ou envie um email para: contato@frameag.com.</p>
+  <button id="closeDetails">Fechar</button>
+</div>
+
+<div class="popup-backdrop" id="logBackdrop"></div>
+<div id="logPopup" class="popup" role="dialog" aria-modal="true">
+  <h3>Histórico</h3>
+  <ul id="logList"></ul>
+  <button id="closeLog">Fechar</button>
+</div>
+`;
+
+// ===== Lógica JavaScript =====
+const strings = {
+  namePlaceholder: 'Nome completo*',
+  cpfPlaceholder: 'CPF (000.000.000-00)*',
+  emailPlaceholder: 'E-mail*',
+  nicknamePlaceholder: 'Apelido (opcional)',
+  submitButton: 'Concluir',
+  editSubmitButton: 'Confirmar mudanças',
+  editButton: 'Editar',
+  hello: 'Olá, ',
+  alertInvalidName: 'Nome deve ter pelo menos 3 caracteres e incluir um sobrenome.',
+  alertInvalidEmail: 'Por favor, insira um e-mail válido.',
+  alertInvalidCPF: 'CPF inválido.',
+  alertFileSize: 'Imagem até 3MB e deve ser uma imagem válida.',
+  alertImageDim: 'Imagem deve ter no mínimo 100x100 pixels e no máximo 2000x2000.',
+  alertStorageError: 'Erro ao salvar dados. Verifique o espaço disponível.'
+};
+
+const overlay = document.getElementById('overlay');
+const formArea = document.getElementById('formArea');
+const photoInput = document.getElementById('photo');
+const preview = document.getElementById('preview');
+const profileForm = document.getElementById('profileForm');
+const loadingText = document.getElementById('loadingText');
+const hello = document.getElementById('hello');
+const header = document.querySelector('header');
+const card = document.querySelector('.card');
+const footer = document.querySelector('footer');
+const sidebar = document.getElementById('sidebar');
+const hamburger = document.querySelector('.hamburger');
+const darkToggle = document.getElementById('darkToggle');
+const redirectOverlay = document.getElementById('redirectOverlay');
+
+document.getElementById('name').placeholder = strings.namePlaceholder;
+document.getElementById('cpf').placeholder = strings.cpfPlaceholder;
+document.getElementById('email').placeholder = strings.emailPlaceholder;
+document.getElementById('nickname').placeholder = strings.nicknamePlaceholder;
+profileForm.querySelector('button').textContent = strings.submitButton;
+
+const texts = ['Preparando...', 'Carregando painel...', 'Verificando segurança...'];
+
+function sanitizeInput(input) {
+  const div = document.createElement('div');
+  div.textContent = input;
+  return div.innerHTML;
+}
+
+function showContent() {
+  return new Promise(resolve => {
+    overlay.classList.add('hidden');
+    setTimeout(() => {
+      header.style.display = 'flex';
+      card.style.display = 'flex';
+      footer.style.display = 'flex';
+      resolve();
+    }, 600);
+  });
+}
+
+function loadProfile(data) {
+  const firstName = sanitizeInput(data.name.split(' ')[0]);
+  const helloText = document.createElement('span');
+  helloText.textContent = `${strings.hello}${firstName}`;
+  hello.appendChild(helloText);
+
+  if (data.photo) {
+    const img = document.createElement('img');
+    img.classList.add('hello-photo');
+    img.src = data.photo;
+    img.alt = 'Foto de perfil';
+    img.loading = 'lazy';
+    hello.appendChild(img);
+  }
+
+  const editBtn = document.createElement('span');
+  editBtn.classList.add('edit-profile');
+  editBtn.textContent = strings.editButton;
+  editBtn.role = 'button';
+  editBtn.tabIndex = 0;
+  editBtn.ariaLabel = 'Editar perfil';
+  editBtn.addEventListener('click', () => editProfile(data));
+  editBtn.addEventListener('keydown', e => { if (e.key === 'Enter') editProfile(data); });
+  hello.appendChild(editBtn);
+
+  const historyIcon = document.createElement('svg');
+  historyIcon.classList.add('history-icon');
+  historyIcon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  historyIcon.setAttribute('fill', 'none');
+  historyIcon.setAttribute('viewBox', '0 0 24 24');
+  historyIcon.setAttribute('stroke', 'currentColor');
+  historyIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />';
+  historyIcon.role = 'button';
+  historyIcon.tabIndex = 0;
+  historyIcon.ariaLabel = 'Ver histórico';
+  historyIcon.addEventListener('click', showLog);
+  historyIcon.addEventListener('keydown', e => { if (e.key === 'Enter') showLog(); });
+  hello.appendChild(historyIcon);
+}
+
+function editProfile(data) {
+  formArea.classList.add('show');
+  overlay.classList.remove('hidden');
+  header.style.display = 'none';
+  card.style.display = 'none';
+  footer.style.display = 'none';
+  profileForm.querySelector('button').textContent = strings.editSubmitButton;
+
+  document.getElementById('name').value = sanitizeInput(data.name);
+  document.getElementById('cpf').value = sanitizeInput(data.cpf);
+  document.getElementById('email').value = sanitizeInput(data.email);
+  document.getElementById('nickname').value = sanitizeInput(data.nickname);
+  if (data.photo) {
+    preview.src = data.photo;
+    preview.dataset.img = data.photo;
+    preview.style.background = 'none';
+  }
+}
+
+function showLog() {
+  const log = JSON.parse(localStorage.log || '[]');
+  const logList = document.getElementById('logList');
+  logList.innerHTML = '';
+  log.forEach(entry => {
+    const li = document.createElement('li');
+    li.textContent = `${entry.action} em ${entry.date}`;
+    logList.appendChild(li);
+  });
+  document.getElementById('logBackdrop').style.display = 'block';
+  document.getElementById('logPopup').classList.add('active');
+  document.getElementById('closeLog').focus();
+}
+
+const progressBar = document.querySelector('.progress-bar');
+let idx = 0;
+function updateLoadingText() {
+  loadingText.textContent = texts[idx % texts.length];
+  idx++;
+}
+updateLoadingText();
+const textInterval = setInterval(updateLoadingText, 1500);
+
+progressBar.addEventListener('animationend', () => {
+  clearInterval(textInterval);
+  if (!localStorage.profileData) {
+    formArea.classList.add('show');
+    loadingText.style.display = 'none';
+  }
+});
+
+if (localStorage.theme === 'dark') {
+  document.body.classList.add('dark');
+  darkToggle.checked = true;
+}
+
+if (localStorage.profileData) {
+  try {
+    const data = JSON.parse(localStorage.profileData);
+    loadProfile(data);
+    showContent();
+  } catch (e) {
+    alert(strings.alertStorageError);
+    localStorage.removeItem('profileData');
+    location.reload();
+  }
+} else {
+  localStorage.log = JSON.stringify([]);
+}
+
+function maskCPF(input) {
+  let v = input.value.replace(/\D/g, '');
+  if (v.length > 11) v = v.substring(0, 11);
+  v = v.replace(/^(\d{3})(\d)/, '$1.$2');
+  v = v.replace(/^(\d{3}\.\d{3})(\d)/, '$1.$2');
+  v = v.replace(/^(\d{3}\.\d{3}\.\d{3})(\d)/, '$1-$2');
+  input.value = v;
+}
+
+document.getElementById('cpf').addEventListener('input', e => maskCPF(e.target));
+
+function isValidCPF(cpf) {
+  cpf = cpf.replace(/\D/g, '');
+  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+  let sum = 0, rest;
+  for (let i = 1; i <= 9; i++) sum += parseInt(cpf.substring(i-1, i)) * (11 - i);
+  rest = (sum * 10) % 11;
+  if ((rest === 10) || (rest === 11)) rest = 0;
+  if (rest !== parseInt(cpf.substring(9, 10))) return false;
+  sum = 0;
+  for (let i = 1; i <= 10; i++) sum += parseInt(cpf.substring(i-1, i)) * (12 - i);
+  rest = (sum * 10) % 11;
+  if ((rest === 10) || (rest === 11)) rest = 0;
+  if (rest !== parseInt(cpf.substring(10, 11))) return false;
+  return true;
+}
+
+photoInput.onchange = e => {
+  const file = e.target.files[0];
+  if (!file || !file.type.startsWith('image/') || file.size > 3000000) {
+    alert(strings.alertFileSize);
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.src = reader.result;
+    img.onload = () => {
+      if (img.width < 100 || img.height < 100 || img.width > 2000 || img.height > 2000) {
+        alert(strings.alertImageDim);
+        return;
+      }
+      const size = Math.min(img.width, img.height);
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, 128, 128);
+      const compressed = canvas.toDataURL('image/jpeg', 0.7);
+      preview.src = compressed;
+      preview.dataset.img = compressed;
+      preview.classList.remove('loading');
+      preview.style.background = 'none';
+    };
+  };
+  reader.readAsDataURL(file);
+  preview.classList.add('loading');
+};
+
+profileForm.onsubmit = e => {
+  e.preventDefault();
+  const name = document.getElementById('name').value.trim();
+  const cpf = document.getElementById('cpf').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (name.length < 3 || name.split(' ').length < 2) {
+    alert(strings.alertInvalidName);
+    return;
+  }
+  if (!isValidCPF(cpf)) {
+    alert(strings.alertInvalidCPF);
+    return;
+  }
+  if (!emailRegex.test(email)) {
+    alert(strings.alertInvalidEmail);
+    return;
+  }
+  const data = {
+    name: sanitizeInput(name),
+    cpf: sanitizeInput(cpf.replace(/\D/g, '')),
+    email: sanitizeInput(email),
+    nickname: sanitizeInput(document.getElementById('nickname').value.trim()),
+    photo: preview.dataset.img || ''
+  };
+  try {
+    localStorage.profileData = JSON.stringify(data);
+    const log = JSON.parse(localStorage.log);
+    const action = localStorage.profileData ? 'Perfil editado' : 'Perfil criado';
+    log.push({action, date: new Date().toLocaleDateString('pt-BR')});
+    localStorage.log = JSON.stringify(log);
+    hello.innerHTML = '';
+    loadProfile(data);
+    formArea.classList.remove('show');
+    profileForm.querySelector('button').textContent = strings.submitButton;
+    showContent();
+  } catch (err) {
+    alert(strings.alertStorageError + ' ' + err.message);
+  }
+};
+
+hamburger.addEventListener('click', () => sidebar.classList.toggle('active'));
+
+document.getElementById('menuProfile').addEventListener('click', () => {
+  const data = JSON.parse(localStorage.profileData);
+  editProfile(data);
+  sidebar.classList.remove('active');
+});
+
+document.getElementById('menuFaturas').addEventListener('click', () => {
+  alert('Seção de faturas em desenvolvimento.');
+  sidebar.classList.remove('active');
+});
+
+document.getElementById('menuSuporte').addEventListener('click', () => {
+  redirectOverlay.style.display = 'flex';
+  setTimeout(() => location.href = 'https://frameag.com/contato', 1000);
+});
+
+darkToggle.addEventListener('change', () => {
+  document.body.classList.toggle('dark');
+  localStorage.theme = darkToggle.checked ? 'dark' : 'light';
+});
+
+document.getElementById('menuLogout').addEventListener('click', () => {
+  localStorage.clear();
+  location.reload();
+});
+
+const notePopup = document.getElementById('notePopup');
+const cancelPopup = document.getElementById('cancelPopup');
+const detailsPopup = document.getElementById('detailsPopup');
+const logPopup = document.getElementById('logPopup');
+const noteBackdrop = document.getElementById('noteBackdrop');
+const cancelBackdrop = document.getElementById('cancelBackdrop');
+const detailsBackdrop = document.getElementById('detailsBackdrop');
+const logBackdrop = document.getElementById('logBackdrop');
+
+document.getElementById('requestNote').addEventListener('click', () => {
+  noteBackdrop.style.display = 'block';
+  notePopup.classList.add('active');
+});
+document.getElementById('requestNote').addEventListener('keydown', e => { if (e.key === 'Enter') { noteBackdrop.style.display = 'block'; notePopup.classList.add('active'); } });
+
+document.getElementById('cancelRenewal').addEventListener('click', () => {
+  cancelBackdrop.style.display = 'block';
+  cancelPopup.classList.add('active');
+});
+document.getElementById('cancelRenewal').addEventListener('keydown', e => { if (e.key === 'Enter') { cancelBackdrop.style.display = 'block'; cancelPopup.classList.add('active'); } });
+
+document.querySelector('.details-link').addEventListener('click', e => {
+  e.preventDefault();
+  detailsBackdrop.style.display = 'block';
+  detailsPopup.classList.add('active');
+  document.getElementById('closeDetails').focus();
+});
+
+document.getElementById('redirectNote').addEventListener('click', () => {
+  redirectOverlay.style.display = 'flex';
+  setTimeout(() => location.href = 'https://frameag.com/invoice', 1000);
+});
+
+document.getElementById('redirectCancel').addEventListener('click', () => {
+  redirectOverlay.style.display = 'flex';
+  setTimeout(() => location.href = 'https://frameag.com/app/invoice-consumer-cancelrenewal', 1000);
+});
+
+document.getElementById('closeDetails').addEventListener('click', () => {
+  detailsPopup.classList.remove('active');
+  detailsBackdrop.style.display = 'none';
+});
+
+document.getElementById('closeLog').addEventListener('click', () => {
+  logPopup.classList.remove('active');
+  logBackdrop.style.display = 'none';
+});
+
+const backdrops = [noteBackdrop, cancelBackdrop, detailsBackdrop, logBackdrop];
+const popups = [notePopup, cancelPopup, detailsPopup, logPopup];
+
+backdrops.forEach((bd, i) => {
+  bd.addEventListener('click', () => {
+    popups[i].classList.remove('active');
+    bd.style.display = 'none';
+  });
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    popups.forEach((p, i) => {
+      if (p.classList.contains('active')) {
+        p.classList.remove('active');
+        backdrops[i].style.display = 'none';
+      }
+    });
+  }
+});
